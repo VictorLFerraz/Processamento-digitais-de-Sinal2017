@@ -1,0 +1,46 @@
+assovio = audioread('D:\PDS\Filtros\assovio\AssovioAudio.wav');
+
+% Filtro passa-baixas FIR
+
+fs = 44100;
+fpass = 1700; 
+fstop = 1900;
+
+wp = (fpass/(fs/2))*pi;
+ws = (fstop/(fs/2))*pi;
+
+wt = ws - wp;  % frequencia de transição
+wc = (wp + ws)/2; % frequencia de corte intermediária
+M = ceil((6.2*pi/wt)) + 1;
+hd = ideal_lp(wc,M); % função sinc passa baixas ideal
+%n  = [0:M-1];
+%w_han = 0.5-0.5*cos(2*pi*n/M-1);
+w_han = hann(M)'; % calcula a janela de hamming
+h = hd.*w_han; % multiplica os vetores
+
+
+% Audio Completo
+
+subplot(4,2,1);
+plot(assovio);
+title('Assovio sem Filtro no Dominio de Tempo');
+xlabel('Tempo(s)');
+ylabel('Amplitude');
+
+subplot(4,2,2);
+my_fft(assovio, fs);
+title('Assovio sem Filtro no Dominio de Frequencia');
+
+% Audio Completo Filtrado
+
+audio_filtrado = conv(h, assovio);
+sound(audio_filtrado, fs);
+subplot(4,2,5);
+plot(audio_filtrado);
+title('Assovio com Filtro no Dominio de Tempo');
+xlabel('Tempo(s)');
+ylabel('Amplitude');
+
+subplot(4,2,6);
+my_fft(audio_filtrado, fs);
+title('Assovio com Filtro no Dominio de Frequencia');
